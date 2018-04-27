@@ -16,7 +16,7 @@ seed = 2016
 #LSTM Batch - data per iteration 
 batchsize = 7
 # Epochs or iterations
-epochs_number = 200
+epochs_number = 20
 #LSTM units - output_dim
 layer_input_units = 4 
 #Regularisateur contre overfitting
@@ -26,7 +26,7 @@ optimizer_used = 'rmsprop'
 # Data shuffle mode
 shuffleData = False
 #Data File
-data_file_name = "DailyDemandDataFactors.csv"
+#data_file_name = "../DailyDemandDataFactors.csv"
 #show Plots
 showPlot = True
 
@@ -79,7 +79,7 @@ np.random.seed(seed)
 fit1 = Sequential ()
 fit1.add(LSTM(
 	activation="tanh", 
-	input_shape=(11, 1), 
+	input_shape=(10, 1), 
 	units=layer_input_units))
 fit1.add(Dropout(Dropout_reg_value))
 fit1.add(Dense(units =1))
@@ -127,6 +127,9 @@ dataF.to_csv('Demandprediction.csv')
 print(">>> Test values saved into Demandprediction.csv file ")
 print("*** Ploting the result...")
 
+diff = np.abs((real_test - pred1)/real_test)*100
+#print(diff)
+print("mean: %s", diff.mean())
 if showPlot:
 	pyplot.plot(pred1, label='forecast')
 	pyplot.plot(real_test,label='actual')
