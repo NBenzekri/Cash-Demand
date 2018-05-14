@@ -21,13 +21,13 @@ print("Loaded model from disk")
 # make prediction with the loaded model
 
 ####
-
-FeaturesTest = [36 ,95900,695,676,126700 ,88100 ,122800 ,768 ,659 ,741 ,419300]
+# mardi;2017-12-12;141200;192,97200,776,729,59500,68000,235500,753,665,767,2000;GAB_02
+FeaturesTest = [192,97200,776,729,59500,68000,235500,753,665,767,2000]
 xaa = np.array(FeaturesTest).reshape ((1,11 )).astype(float)
 xaa = scaler_x.transform(xaa) 
 xaa = xaa.reshape(xaa.shape +(1,))
 tomorrowDemand = loaded_model.predict(xaa)
 print("tomorrowDemand scalled: ", tomorrowDemand[0])
 prediction = scaler_y.inverse_transform(np.array(tomorrowDemand).reshape ((len(tomorrowDemand), 1))).astype(int)
-print ("la demande reelle est 95900 et la prediction est: ", prediction[0])
+print ("la demande reelle est 141200 et la prediction est: ", prediction[0])
 

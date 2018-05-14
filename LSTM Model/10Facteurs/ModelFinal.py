@@ -8,11 +8,12 @@ from keras.models import Sequential
 from matplotlib import pyplot
 from  prepareData import x,y,scaler_x,scaler_y,train_end
 import time
+import datetime
 import os
 
 #**** Hyperparameters *****
 #Random seed
-seed = 2016
+seed = 1215
 #LSTM Batch - data per iteration 
 batchsize = 7
 # Epochs or iterations
@@ -21,45 +22,14 @@ epochs_number = 20
 layer_input_units = 4 
 #Regularisateur contre overfitting
 Dropout_reg_value = 0.1
-# optimizer used - sgd or rmsprop
-optimizer_used = 'rmsprop'
+# optimizer used - sgd or rmsprop or adam
+optimizer_used = 'sgd'
 # Data shuffle mode
 shuffleData = False
 #Data File
 #data_file_name = "../DailyDemandDataFactors.csv"
 #show Plots
 showPlot = True
-
-# read and prepare data from datafile
-# # data_csv = pd.read_csv(data_file_name, delimiter = ';',header=None, usecols=[3,4,5,6,7,8,9,10,11,12,13,14])
-# Lire ligne par ligne
-# # data = data_csv[1:]
-# Renommer les colonne
-# # data.columns = ['SumRetrait','CountTransaction','ConsommationHier','MSemaineDernier','MSemaine7','ConsoMmJrAnP','ConsoMmJrMP','ConsoMMJrSmDer','MoyenneMoisPrec','MoyenneMMSAnPrec','MoyenneMMmAnPrec','ConsommationMaxMDer']
-# print (data.head(10))
-# pd.options.display.float_format = '{:,.0f}'.format
-# supprimer les lignes dont la valeur est null ( au moins une valeur null)
-# # data = data.dropna ()
-# Output Y avec son type
-# # y=data['SumRetrait'].astype(float)
-# # cols=['CountTransaction','ConsommationHier','MSemaineDernier','MSemaine7','ConsoMmJrAnP','ConsoMmJrMP','ConsoMMJrSmDer','MoyenneMoisPrec','MoyenneMMSAnPrec','MoyenneMMmAnPrec','ConsommationMaxMDer']
-# # x=data[cols].astype(float)
-# # print("longeur de y",len(y))
-# # train_end = round((len(y)*Training_range)/100)
-# # print("Training data count: ",train_end,"/",len(y))
-
-# print(x.head())
-# print(y.head())
-
-# scaling data-Normalisation
-# # scaler_x = preprocessing.MinMaxScaler(feature_range =(-1, 1))
-# construir le format des input (3 Dimensions pour les reseaux de neuronne)
-# # x = np.array(x).reshape ((len(x),11 ))
-# # x = scaler_x.fit_transform(x)
-# # print(x[-1,:])
-# # scaler_y = preprocessing.MinMaxScaler(feature_range =(-1, 1))
-# # y = np.array(y).reshape ((len(y), 1))
-# # y = scaler_y.fit_transform(y)
 
 # Split train and test data
 x_train=x[0: train_end ,]
@@ -88,17 +58,20 @@ fit1.add(Activation(linear))
 #rmsprop or sgd
 fit1.compile(loss="mean_squared_error",optimizer=optimizer_used)
 start = time.time()
-
+print("Training begins...")
 #train the model
 fit1.fit(x_train , y_train , batch_size = batchsize, epochs =epochs_number, shuffle=shuffleData)
+
 t = round((time.time() - start) ,3)
-print("************* Training Sammary ****************")
-print("Training Time: ", t," sec")
+print("************* Training Sammary of LSTM model with 10 Factors ****************")
+traintime = str(datetime.timedelta(seconds=t))
+print("Training Time: ", traintime ,' For ',epochs_number,' iteration')
 print(fit1.summary ())
 #Model error
 print("************* Training Vs Test MSE Error ****************")
 score_train = fit1.evaluate(x_train ,y_train ,batch_size =batchsize)
 score_test = fit1.evaluate(x_test , y_test ,batch_size =batchsize)
+
 print("in  train  MSE = ",round(score_train,4))
 print("in test  MSE = ",round(score_test ,4))
 
@@ -107,6 +80,8 @@ pred1 = fit1.predict(x_test)
 pred1 = scaler_y.inverse_transform(np.array(pred1).reshape ((len(pred1), 1))).astype(int)
 real_test = scaler_y.inverse_transform(np.array(y_test).reshape ((len(y_test), 1))).astype(int)
 ##############################
+mse = (((real_test - pred1)/real_test) ** 2).mean()
+print('MSE: ', mse)
 ##Save the Model weights to json file
 ##
 # serialize model to JSON
@@ -127,12 +102,13 @@ dataF.to_csv('Demandprediction.csv')
 print(">>> Test values saved into Demandprediction.csv file ")
 print("*** Ploting the result...")
 
-diff = np.abs((real_test - pred1)/real_test)*100
-#print(diff)
-print("mean: %s", diff.mean())
+meanError = np.abs((real_test - pred1)/real_test)*100
+meanError2 = np.abs((real_test - pred1))
+print("mean: %s", meanError.mean()," - ", meanError2.mean())
 if showPlot:
 	pyplot.plot(pred1, label='forecast')
 	pyplot.plot(real_test,label='actual')
 	pyplot.legend()
 	pyplot.show()
+	
 

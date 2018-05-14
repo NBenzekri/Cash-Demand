@@ -22,8 +22,8 @@ print("Loaded model from disk")
 
 ####
 
-FeaturesTest = [36 ,95900,695,676,126700 ,88100 ,122800 ,768 ,659 ,741 ,419300]
-xaa = np.array(FeaturesTest).reshape ((1,11 )).astype(float)
+FeaturesTest = [10370,753,685,127100,119800,145500,760,721,768,4000]
+xaa = np.array(FeaturesTest).reshape ((1,1 )).astype(float)
 xaa = scaler_x.transform(xaa) 
 xaa = xaa.reshape(xaa.shape +(1,))
 tomorrowDemand = loaded_model.predict(xaa)
